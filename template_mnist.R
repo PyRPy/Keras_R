@@ -42,3 +42,9 @@ history <- model %>% fit(
 )
 
 plot(history)
+
+# Evaluate the model’s performance
+model %>% evaluate(x_test, y_test)
+
+# predict
+model %>% predict_classes(x_test)
