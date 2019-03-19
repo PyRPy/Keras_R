@@ -324,6 +324,7 @@ reverse_order_generator <- function( data, lookback, delay, min_index, max_index
     list(samples[,ncol(samples):1,], targets)
   }
 }
+
 train_gen_reverse <- reverse_order_generator(
   data,
   lookback = lookback,
@@ -334,6 +335,7 @@ train_gen_reverse <- reverse_order_generator(
   step = step, 
   batch_size = batch_size
 )
+
 val_gen_reverse = reverse_order_generator(
   data,
   lookback = lookback,
@@ -348,20 +350,22 @@ val_gen_reverse = reverse_order_generator(
 model <- keras_model_sequential() %>% 
   layer_gru(units = 32, input_shape = list(NULL, dim(data)[[-1]])) %>% 
   layer_dense(units = 1)
+
 model %>% compile(
   optimizer = optimizer_rmsprop(),
   loss = "mae"
 )
+
 history <- model %>% fit_generator(
   train_gen_reverse,
   steps_per_epoch = 500,
-  epochs = 20,
+  epochs = 10, # changed to 10 from 30
   validation_data = val_gen_reverse,
   validation_steps = val_steps
 )
 
 plot(history)
-# worse result than common sense baseline
+# worse result than common sense baseline | observed >0.45
 
 # --- LSTM with bidirectional --- #
 model <- keras_model_sequential() %>% 
@@ -369,17 +373,19 @@ model <- keras_model_sequential() %>%
     layer_gru(units = 32), input_shape = list(NULL, dim(data)[[-1]])
   ) %>% 
   layer_dense(units = 1)
+
 model %>% compile(
   optimizer = optimizer_rmsprop(),
   loss = "mae"
 )
+
 history <- model %>% fit_generator(
   train_gen,
   steps_per_epoch = 500,
-  epochs = 40,
+  epochs = 10, # changed to 10 from 40
   validation_data = val_gen,
   validation_steps = val_steps
 )
 
 plot(history)
-
+# mae 0.28
